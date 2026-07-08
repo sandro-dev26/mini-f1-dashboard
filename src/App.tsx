@@ -102,7 +102,7 @@ export function App() {
           Data Is From 2025 Abu Dhabi GP
         </span>
 
-        <ul className="list-none overflow-y-scroll h-96 py-4 scroll-fade-mask">
+        <ul className="list-none overflow-y-scroll h-116 py-4 scroll-fade-mask">
           {driverData
             ?.filter((driver) =>
               specDriversData?.some(
