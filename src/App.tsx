@@ -154,9 +154,7 @@ export function App() {
                         src={matchingProfile?.headshot_url}
                       ></img>
                     ) : (
-                      <span
-                        className={`font-light mt-4 ${isDark ? "text-neutral-100" : "text-neutral-100"}`}
-                      >
+                      <span className="font-light mt-4 text-neutral-100 hover:text-neutral-300">
                         Picture Unavailable
                       </span>
                     )}
@@ -167,7 +165,7 @@ export function App() {
         </ul>
       </div>
       <span
-        className={`text-sm ${isDark ? "text-neutral-300" : "text-neutral-600"} mt-8 mb-2`}
+        className={`text-sm ${isDark ? "text-neutral-300 hover:text-neutral-400" : "text-neutral-600 hover:text-neutral-500"} mt-8 mb-2`}
       >
         <span className="flex justify-center items-center mr-1 border-1 w-4 h-4 rounded-full text-[0.7rem] inline-flex">
           !
