@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { getF1Data, getF1Drivers } from "./fetch";
 import type { DriverData, SpecDriverData } from "./fetch";
+import ShortcutDeploy from "./components/shortcut";
 
 export function App() {
+  const [showJson, setShowJson] = useState(false);
+
   const sunIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -164,6 +167,45 @@ export function App() {
             })}
         </ul>
       </div>
+      <ShortcutDeploy onTrigger={() => setShowJson(!showJson)} />
+      {showJson && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-slate-900 text-green-400 p-6 rounded-xl max-w-4xl w-full max-h-[85vh] overflow-y-auto text-xs border border-slate-700 shadow-2xl flex flex-col">
+            <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+              <span className="font-bold text-sm">
+                Raw API Output Diagnostic Console
+              </span>
+              <button
+                onClick={() => setShowJson(false)}
+                className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-md text-xs transition-all"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4">
+              <div>
+                <h3 className="text-white font-bold mb-1 text-sm">
+                  1. driverData (getF1Data)
+                </h3>
+                <pre className="bg-slate-950 p-3 rounded-lg overflow-x-auto whitespace-pre">
+                  {JSON.stringify(driverData, null, 2)}
+                </pre>
+              </div>
+
+              <div>
+                <h3 className="text-white font-bold mb-1 mt-16 text-sm">
+                  2. specDriversData (getF1Drivers)
+                </h3>
+                <pre className="bg-slate-950 p-3 rounded-lg overflow-x-auto whitespace-pre">
+                  {JSON.stringify(specDriversData, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <span
         className={`text-sm ${isDark ? "text-neutral-300 hover:text-neutral-400" : "text-neutral-600 hover:text-neutral-500"} mt-8 mb-2`}
       >
