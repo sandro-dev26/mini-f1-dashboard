@@ -1,4 +1,3 @@
-import React from "react";
 import { useState, useEffect } from "react";
 import { getF1Data, getF1Drivers } from "./fetch";
 import type { DriverData, SpecDriverData } from "./fetch";
