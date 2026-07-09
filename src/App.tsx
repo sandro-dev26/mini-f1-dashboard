@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getF1Data, getF1Drivers } from "./fetch";
-import type { DriverData, SpecDriverData } from "./fetch";
+import { getF1Data, getF1Drivers, getNextGP } from "./fetch";
+import type { DriverData, SpecDriverData, F1Session } from "./fetch";
 import ShortcutDeploy from "./components/shortcut";
 
 export function App() {
@@ -61,16 +61,50 @@ export function App() {
   const [specDriversData, setSpecDriversData] = useState<
     SpecDriverData[] | null
   >(null);
-  useEffect(() => {
-    async function passDriverData() {
-      const responseDataOne = await getF1Data();
-      const responseDataTwo = await getF1Drivers();
 
-      setDriverData(responseDataOne);
-      setSpecDriversData(responseDataTwo);
+  const [nextGP, setNextGP] = useState<F1Session | null>(null);
+  useEffect(() => {
+    async function passF1Data() {
+      try {
+        const cachedDataOne = localStorage.getItem("f1_driver_data");
+        const cachedDataTwo = localStorage.getItem("f1_spec_drivers");
+        const cachedGP = localStorage.getItem("f1_next_gp");
+
+        if (cachedDataOne && cachedDataTwo && cachedGP) {
+          setDriverData(JSON.parse(cachedDataOne));
+          setSpecDriversData(JSON.parse(cachedDataTwo));
+          setNextGP(JSON.parse(cachedGP));
+          return;
+        }
+
+        const responseDataOne = await getF1Data();
+        const responseDataTwo = await getF1Drivers();
+        const responseGP = await getNextGP();
+
+        if (responseDataOne && responseDataTwo) {
+          setDriverData(responseDataOne);
+          setSpecDriversData(responseDataTwo);
+          setNextGP(responseGP || null);
+
+          localStorage.setItem(
+            "f1_driver_data",
+            JSON.stringify(responseDataOne),
+          );
+          localStorage.setItem(
+            "f1_spec_drivers",
+            JSON.stringify(responseDataTwo),
+          );
+          localStorage.setItem(
+            "f1_next_gp",
+            JSON.stringify(responseGP || null),
+          );
+        }
+      } catch (error) {
+        console.error("Failed fetching or parsing F1 data", error);
+      }
     }
 
-    passDriverData();
+    passF1Data();
   }, []);
   return (
     <div
@@ -78,7 +112,7 @@ export function App() {
     >
       <button
         onClick={changeTheme}
-        className={`flex justify-center items-center ${isDark ? "bg-slate-800 hover:bg-slate-700 active:bg-slate-950" : "bg-slate-200 hover:bg-slate-300 active:bg-slate-100"} w-10 h-10 rounded-full transition-all duration-200 hover:scale-[1.05] active:scale-[0.95]`}
+        className={`flex justify-center items-center ${isDark ? "bg-slate-800 hover:bg-slate-700 active:bg-slate-950" : "bg-slate-200 hover:bg-slate-300 active:bg-slate-50"} w-10 h-10 rounded-full transition-all duration-200 hover:scale-[1.05] active:scale-[0.95]`}
       >
         {isDark ? moonIcon : sunIcon}
       </button>
@@ -128,21 +162,21 @@ export function App() {
                     <span className="">
                       Number:{" "}
                       <span
-                        className={`font-bold text-xl ${isDark ? "text-shadow-none" : "text-shadow-lg text-shadow-slate-800/15"} transition-all duration-200 hover:text-2xl`}
+                        className={`font-bold text-xl ${isDark ? "text-shadow-none" : "text-shadow-lg text-shadow-slate-800/10"} transition-all duration-200 hover:text-2xl`}
                         style={{ color: `#${teamHex}` }}
                       >{`${driver.driver_number}`}</span>
                     </span>
                     <span className="">
                       Name: {matchingProfile?.first_name}
                       <span
-                        className={`font-bold text-xl ${isDark ? "text-shadow-none" : "text-shadow-lg text-shadow-slate-800/15"} transition-all duration-200 hover:text-2xl`}
+                        className={`font-bold text-xl ${isDark ? "text-shadow-none" : "text-shadow-lg text-shadow-slate-800/10"} transition-all duration-200 hover:text-2xl`}
                         style={{ color: `#${teamHex}` }}
                       >{` ${matchingProfile?.last_name}`}</span>
                     </span>
                     <span className="">
                       Team:{" "}
                       <span
-                        className={`font-bold text-xl ${isDark ? "text-shadow-none" : "text-shadow-lg text-shadow-slate-800/15"} transition-all duration-200 hover:text-2xl`}
+                        className={`font-bold text-xl ${isDark ? "text-shadow-none" : "text-shadow-lg text-shadow-slate-800/10"} transition-all duration-200 hover:text-2xl`}
                         style={{ color: `#${teamHex}` }}
                       >{` ${matchingProfile?.team_name}`}</span>
                     </span>
@@ -157,7 +191,9 @@ export function App() {
                         src={matchingProfile?.headshot_url}
                       ></img>
                     ) : (
-                      <span className="font-light mt-4 text-neutral-100 hover:text-neutral-300">
+                      <span
+                        className={`font-light mt-4 ${isDark ? "text-neutral-200 hover:text-neutral-400" : "text-neutral-100 hover:text-neutral-300"}`}
+                      >
                         Picture Unavailable
                       </span>
                     )}
@@ -167,14 +203,71 @@ export function App() {
             })}
         </ul>
       </div>
+
+      {nextGP ? (
+        <div className="flex flex-col mt-20">
+          <h2 className="text-4xl">Upcoming GP</h2>
+          <div className="flex flex-col text-xl mt-4">
+            <h3>
+              Contury:{" "}
+              <span className="text-2xl text-red-500 font-semibold font-sans transition-all duration-200 hover:text-3xl">
+                {nextGP?.country_name}
+              </span>
+            </h3>
+            <h3>
+              Track:{" "}
+              <span className="text-2xl text-red-500 font-semibold font-sans transition-all duration-200 hover:text-3xl">
+                {nextGP?.circuit_short_name}
+              </span>
+            </h3>
+            {nextGP.date_start && (
+              <>
+                <h3>
+                  Date:{" "}
+                  <span className="text-2xl text-red-500 font-semibold font-sans transition-all duration-200 hover:text-3xl">
+                    {new Date(nextGP.date_start).toLocaleDateString(undefined, {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                </h3>
+                <h3>
+                  Time (Your Time):{" "}
+                  <span className="text-2xl text-red-500 font-semibold font-sans transition-all duration-200 hover:text-3xl">
+                    {new Date(nextGP.date_start).toLocaleTimeString(undefined, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </h3>
+              </>
+            )}
+            <h3>
+              Status:{" "}
+              <span className="text-2xl text-red-500 font-semibold font-sans transition-all duration-200 hover:text-3xl">
+                {nextGP?.is_cancelled ? "Canceled" : "Confirmed"}
+              </span>
+            </h3>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <h2 className="text-4xl mt-12 mb-4">Upcoming GP</h2>
+          <span
+            className={`text-2xl font-light ${isDark ? "text-neutral-200 hover:text-neutral-400" : "text-neutral-900 hover:text-neutral-700"}`}
+          >
+            Data Unavalable
+          </span>
+        </div>
+      )}
+
       <ShortcutDeploy onTrigger={() => setShowJson(!showJson)} />
       {showJson && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
           <div className="bg-slate-900 text-green-400 p-6 rounded-xl max-w-4xl w-full max-h-[85vh] overflow-y-auto text-xs border border-slate-700 shadow-2xl flex flex-col">
             <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
-              <span className="font-bold text-sm">
-                Raw API Output Diagnostic Console
-              </span>
+              <span className="font-bold text-sm">Raw API Output</span>
               <button
                 onClick={() => setShowJson(false)}
                 className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-md text-xs transition-all"

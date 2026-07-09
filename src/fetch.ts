@@ -21,6 +21,17 @@ export interface SpecDriverData {
   headshot_url: string;
   country_code: null;
 }
+export interface F1Session {
+  session_key: number;
+  session_type: string;
+  session_name: string;
+  date_start: string;
+  circuit_short_name: string;
+  country_name: string;
+  location: string;
+  year: number;
+  is_cancelled: boolean;
+}
 
 export async function getF1Data() {
   const response = await fetch(
@@ -408,4 +419,37 @@ export async function getF1Drivers() {
   const data = await response.json();
 
   return data;
+}
+
+export async function getNextGP() {
+  const response = await fetch(
+    "https://api.openf1.org/v1/sessions?year=2026&session_name=Race",
+  );
+
+  if (!response.ok) {
+    return undefined;
+  }
+
+  const data: F1Session[] = await response.json();
+
+  const now = new Date();
+
+  const upcomingRaces = data.filter((session) => {
+    return (
+      session.year === 2026 &&
+      session.session_type === "Race" &&
+      session.session_name === "Race" &&
+      !session.is_cancelled &&
+      new Date(session.date_start) > now
+    );
+  });
+
+  upcomingRaces.sort(
+    (a, b) =>
+      new Date(a.date_start).getTime() - new Date(b.date_start).getTime(),
+  );
+
+  const nextGrandPrix = upcomingRaces[0] || null;
+
+  return nextGrandPrix;
 }
