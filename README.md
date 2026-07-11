@@ -2,7 +2,7 @@
 
 ## Site URL
 
-"https://mini-f1-dashboard.vercel.app/"
+https://mini-f1-dashboard.vercel.app/
 
 ## Development
 
