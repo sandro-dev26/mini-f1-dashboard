@@ -108,7 +108,7 @@ export function App() {
   }, []);
   return (
     <div
-      className={`flex flex-col flex-start ${isDark ? "bg-slate-950 text-white" : "bg-slate-50 text-black"} min-h-screen p-6`}
+      className={`flex flex-col flex-start ${isDark ? "bg-slate-950 text-white selection:bg-red-700 selection:text-white" : "bg-slate-50 text-black selection:bg-red-500 selection:text-white"} min-h-screen p-6`}
     >
       <button
         onClick={changeTheme}
@@ -131,7 +131,7 @@ export function App() {
       <div className="flex flex-col mt-4">
         <span className="text-3xl">Drivers</span>
         <span
-          className={`text-sm ${isDark ? "text-neutral-400" : "text-neutral-600"} mb-4 hover:text-neutral-500`}
+          className={`text-sm ${isDark ? "text-neutral-400" : "text-neutral-600"} mb-4 hover:text-neutral-500 select-none`}
         >
           <span className="flex justify-center items-center mr-1 border-1 w-4 h-4 rounded-full text-[0.7rem] inline-flex">
             !
@@ -184,7 +184,7 @@ export function App() {
                     <span className="">{`Position: ${driver.position_current}`}</span>
                     {matchingProfile?.headshot_url ? (
                       <img
-                        className="w-16 m-2 border-1 rounded-md transition-all duration-200 hover:scale-[1.05]"
+                        className="w-16 m-2 border-1 rounded-md transition-all duration-200 hover:scale-[1.05] select-none"
                         style={{
                           background: `#${teamHex}`,
                         }}
@@ -300,7 +300,7 @@ export function App() {
       )}
 
       <span
-        className={`text-sm ${isDark ? "text-neutral-300 hover:text-neutral-400" : "text-neutral-600 hover:text-neutral-500"} mt-8 mb-2`}
+        className={`text-sm ${isDark ? "text-neutral-300 hover:text-neutral-400" : "text-neutral-600 hover:text-neutral-500"} mt-8 mb-2 select-none`}
       >
         <span className="flex justify-center items-center mr-1 border-1 w-4 h-4 rounded-full text-[0.7rem] inline-flex">
           !
